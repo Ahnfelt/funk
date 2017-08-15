@@ -8,6 +8,8 @@ function emitFunk(term) {
 
         case 'Number': return term.value;
 
+        case 'Unit': return 'null';
+
         case 'Initialize': return 'var ' + term.name + '_ = ' + emitFunk(term.value);
 
         case 'Update': return term.name + '_ = ' + emitFunk(term.value);
