@@ -62,11 +62,36 @@
 
 system.SetText(p1.Show + " + " + p2.Show + " = " + p3.Show)
 
-
 ; Operators are implemented exactly like methods are.
 ; You can use "+" instead of Add, eg:
 ;     |"+" p| point(x + p.X, y + p.Y)
 ; If you do that, then you can write "p1 + p2" instead of "p1.Add(p2)"
+
+
+; Define your own control structures, eg: if(x > y) {"foo"} {"bar"}
+:if {
+    |True t _| t()
+    |False _ e| e() 
+}
+
+:when {
+    |True t| t()
+    |False _|
+}
+
+; Loops via recursion: while {x > y} {"blah"}
+:while {|c b|
+    when(c()) {
+        b()
+        while(c, b)
+    }
+}
+
+:x 10
+while {x > 0} {
+    system.Log(x)
+    @x x - 1
+}
 </textarea>
         </div>
         <div id="result">
