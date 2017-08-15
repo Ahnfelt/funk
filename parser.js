@@ -89,6 +89,7 @@ function parseFunk(code) {
         c = current();
         if(!(c == '|')) {
             var statements = parseStatements();
+            c = current();
             if(!(c == '}')) throw 'Expected "}" after function at line ' + currentLine;
             next();
             skipLineEnd();
@@ -107,9 +108,12 @@ function parseFunk(code) {
             }
             var extraPatterns = [];
             var extraPattern = parseLower();
-            while(extraPattern != null) {
+            c = current();
+            while(extraPattern != null || c == '_') {
+                if(extraPattern == null) next(true);
                 extraPatterns.push(extraPattern);
                 extraPattern = parseLower();
+                c = current();
             }
             c = current();
             if(!(c == '|')) throw 'Expected "|" after pattern at line ' + currentLine;
@@ -136,6 +140,7 @@ function parseFunk(code) {
             next(true);
             bracketStack.push('(');
             var term = parseTerm();
+            if(term == null) term = node(false, 'Unit', line);
             c = current();
             if(!(c == ')')) throw 'Expected ")" after "(" at line ' + currentLine;
             next(true);
@@ -152,14 +157,15 @@ function parseFunk(code) {
         if(term == null) return null;
         var c = current();
         var start = offset;
-        while(c == '.' || c == '(') {
+        while(c == '.' || c == '(' || c == '{') {
             var line = currentLine;
-            next(true);
             if(c == '.') {
+                next(true);
                 var method = parseUpper();
                 if(method == null) throw 'Method name expected after "." at line ' + line;
                 term = node(false, 'Apply', line, {left: term, right: method});
-            } else {
+            } else if(c == '(') {
+                next(true);
                 bracketStack.push('(');
                 var right = parseTerm();
                 if(right == null) {
@@ -177,6 +183,10 @@ function parseFunk(code) {
                 if(c != ')') throw '")" expected after "(" at line ' + line;
                 next(true);
                 bracketStack.pop();
+            } else {
+                var argument = parseLambda();
+                if(argument == null) throw 'Lambda function argument expected at line ' + line;
+                term = node(false, 'Apply', line, {left: term, right: argument});
             }
             c = current();
         }
