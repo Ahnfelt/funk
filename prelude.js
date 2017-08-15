@@ -1,6 +1,8 @@
 // A function for Funk Function Application (required to support methods on primitive types in JavaScript)
 function _A(f, x) {
     if(typeof f == 'function') {
+        if(x === true) x = 'True';
+        if(x === false) x = 'False';
         return f(x);
     } else if(typeof f == 'string') {
         switch(x) {
@@ -21,6 +23,10 @@ function _A(f, x) {
         switch(x) {
             case '==': return function(v) { return f == v; };
             case '!=': return function(v) { return f != v; };
+            case '>': return function(v) { return f > v; };
+            case '>=': return function(v) { return f >= v; };
+            case '<': return function(v) { return f < v; };
+            case '<=': return function(v) { return f <= v; };
             case '-_': return -f; // Unary operator -
             case '+_': return +f; // Unary operator +
             case '+': return function(v) { return f + v; };
