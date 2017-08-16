@@ -83,7 +83,7 @@ function parseFunk(code) {
         var start = offset;
         var line = currentLine;
         if(!(c == '{')) return null;
-        bracketStack.push('}');
+        bracketStack.push('{');
         next();
         skipLineEnd();
         c = current();
