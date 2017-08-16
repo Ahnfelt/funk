@@ -54,6 +54,7 @@ var system_ = function(x) {
         case 'Dir': return function(v) { console.dir(v) };
         case 'SetText': return function(v) { document.getElementById("result").textContent = v; };
         case 'SetHtml': return function(v) { document.getElementById("result").innerHTML = v; };
+        default: throw "Unexpected argument: " + x;
     }
 }
 
@@ -62,11 +63,12 @@ var new_ = function(x) {
     return function(t) {
         if(t == null) return x;
         switch(t) {
-            case 'Unit': return x;
+            case '*_': return x;
             case '=': return function(y) { x = y; };
             case '+=': return function(y) { x += y; };
             case '-=': return function(y) { x -= y; };
             case '*=': return function(y) { x *= y; };
+            throw "Unexpected argument: " + t;
         }
     }
 }
