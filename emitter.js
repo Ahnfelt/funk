@@ -1,4 +1,4 @@
-function emitFunk(term) {
+function emitFunk(term, functions) {
 
     switch(term.tag) {
 
@@ -10,11 +10,18 @@ function emitFunk(term) {
 
         case 'Unit': return 'null';
 
-        case 'Initialize': return 'var ' + term.name + '_ = ' + emitFunk(term.value);
+        case 'Initialize': 
+            if(term.value.tag == 'Function') functions[term.name + '_'] = true;
+            return 'var ' + term.name + '_ = ' + emitFunk(term.value, functions);
 
-        case 'Update': return term.name + '_ = ' + emitFunk(term.value);
-
-        case 'Apply': return '_A(' + emitFunk(term.left) + ", " + emitFunk(term.right) + ')';
+        case 'Apply': 
+            // A slight optimization that removes some of the superfluous calls to _A.
+            // This could be improved by putting function arity into the "functions" map.
+            if(term.left.tag == 'Lower' && functions[term.left.value + '_']) {
+                return emitFunk(term.left, functions) + "(" + emitFunk(term.right, functions) + ")";
+            } else {
+                return '_A(' + emitFunk(term.left, functions) + ", " + emitFunk(term.right, functions) + ')';
+            } 
 
         case 'Function':
             var casesCode = ""; 
@@ -26,12 +33,17 @@ function emitFunk(term) {
                     casesCode += 'var ' + c.pattern.value + '_ = _X;\n';
                 }
                 if(c.pattern != null && c.pattern.tag == 'String') {
-                    casesCode += 'if(_X == ' + JSON.stringify(c.pattern.value) + ') {\n';
+                    var extra = 
+                        c.pattern.value == 'Unit' ? ' || _X == null' :
+                        c.pattern.value == 'True' ? ' || _X === true' :
+                        c.pattern.value == 'False' ? ' || _X === false':
+                        '';
+                    casesCode += 'if(_X === ' + JSON.stringify(c.pattern.value) + extra + ') {\n';
                 }
                 if(c.pattern != null && c.pattern.tag == 'Number') {
-                    casesCode += 'if(_X == ' + c.pattern.value + ') {\n';
+                    casesCode += 'if(_X === ' + c.pattern.value + ') {\n';
                 }
-                casesCode += emitFunkStatements(c.body); 
+                casesCode += emitFunk.emitStatements(c.body, emitFunk.copy(functions)); 
                 if(c.pattern != null && c.pattern.tag != 'Lower') {
                     casesCode += '}\n';
                 }
@@ -45,20 +57,34 @@ function emitFunk(term) {
 
 }
 
-function emitFunkStatements(statements) {
+emitFunk.emitStatements = function(statements, functions) {
 
     if(statements.length == 0) return 'return;';
 
     var bodyCode = "";
     for(var i = 0; i < statements.length - 1; i++) {
-        bodyCode += emitFunk(statements[i]) + ';\n';
+        bodyCode += emitFunk(statements[i], functions) + ';\n';
     }
 
     var last = statements[statements.length - 1];
     if(!(last.tag == 'Initialize' || last.tag == 'Update')) {
-        return bodyCode + 'return ' + emitFunk(last) + ';\n';
+        return bodyCode + 'return ' + emitFunk(last, functions) + ';\n';
     } else {
-        return bodyCode + emitFunk(last) + ';\nreturn;\n';
+        return bodyCode + emitFunk(last, functions) + ';\nreturn;\n';
     }
 
+};
+
+emitFunk.emitProgram = function(statements) {
+    var functions = {'system_': true, 'new_': true};
+    var emitted = emitFunk.emitStatements(statements, functions);
+    return '(function() {\n' + emitted + '})();\n'
 }
+
+emitFunk.copy = function(map) {
+    var result = {};
+    for(var k in map) {
+        result[k] = map[k];
+    }
+    return result;
+};
