@@ -87,10 +87,10 @@ system.SetText(p1.Show + " + " + p2.Show + " = " + p3.Show)
     }
 }
 
-:x 10
-while {x > 0} {
-    system.Log(x)
-    @x x - 1
+:x new(10)
+while {x() > 0} {
+    system.Log(x())
+    x -= 1
 }
 </textarea>
         </div>
@@ -103,7 +103,7 @@ while {x > 0} {
                 var program = document.getElementById('editor-textarea').value;
                 try {
                     var parsed = parseFunk(program);
-                    var emitted = '(function() {\n' + emitFunkStatements(parsed) + '})();\n';
+                    var emitted = emitFunk.emitProgram(parsed);console.log(emitted);
                     resultElement.style.color = "#000000";
                     resultElement.textContent = "";
                     eval(emitted);
