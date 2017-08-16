@@ -4,7 +4,7 @@ function _A(f, x) {
         return f(x);
     } else if(typeof f === 'string') {
         switch(x) {
-            case 'Show': return JSON.stringify(x);
+            case 'Show': return JSON.stringify(f);
             case 'Size': return f.length;
             case 'CharAt': return function(i) { return f.charAt(i); };
             case 'CharCodeAt': return function(i) { return f.charCodeAt(i); };
@@ -21,7 +21,7 @@ function _A(f, x) {
         }
     } else if(typeof f === 'number') {
         switch(x) {
-            case 'Show': return "" + x;
+            case 'Show': return "" + f;
             case '==': return function(v) { return f == v; };
             case '!=': return function(v) { return f != v; };
             case '>': return function(v) { return f > v; };
@@ -63,6 +63,7 @@ var new_ = function(x) {
     return function(t) {
         if(t == null) return x;
         switch(t) {
+            case 'Show': return 'new(' + _A(x, 'Show') + ')';
             case '*_': return x;
             case '=': return function(y) { x = y; };
             case '+=': return function(y) { x += y; };
