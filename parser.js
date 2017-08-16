@@ -197,7 +197,7 @@ function parseFunk(code) {
         var c = current();
         var start = offset;
         var line = currentLine;
-        while('!#$%&/=?^~*<>+-'.indexOf(c) != -1) {
+        while('@!#$%&/=?^~*<>+-'.indexOf(c) != -1) {
             c = next();
         }
         var operator = code.substring(start, offset);
@@ -214,7 +214,7 @@ function parseFunk(code) {
         var c = current();
         var start = offset;
         var line = currentLine;
-        while('!#$%&/=?^~*<>+-'.indexOf(c) != -1) {
+        while('@!#$%&/=?^~*<>+-'.indexOf(c) != -1) {
             c = next();
         }
         var operator = code.substring(start, offset);
@@ -230,28 +230,27 @@ function parseFunk(code) {
 
     var parseTerm = parseBinaryOperator;
 
-    function parseAssignment() {
+    function parseInitialization() {
         var c = current();
         var start = offset;
         var line = currentLine;
-        if(!(c == ':' || c == '@')) return parseTerm();
+        if(!(c == ':')) return parseTerm();
         next(true);
         var name = parseLower();
         if(name == null) throw 'Lower case identifier expected after "' + c + '" at line ' + line;
         var term = parseBinaryOperator();
-        if(c == ':') return node(false, 'Initialize', line, {name: name.value, value: term});
-        else return node(false, 'Update', line, {name: name.value, value: term});
+        return node(false, 'Initialize', line, {name: name.value, value: term});
     }
 
     function parseStatements() {
         var statements = [];
         skipLineEnd();
-        var statement = parseAssignment();
+        var statement = parseInitialization();
         if(statement == null) return statements;
         skipLineEnd();
         while(statement != null) {
             statements.push(statement);
-            statement = parseAssignment();
+            statement = parseInitialization();
             skipLineEnd();
         }
         return statements;
