@@ -91,15 +91,13 @@ function parseFunk(code) {
             var statements = parseStatements();
             c = current();
             if(!(c == '}')) throw 'Expected "}" after function at line ' + currentLine;
-            next();
-            skipLineEnd();
             bracketStack.pop();
+            next(true);
             return node(false, 'Function', line, {cases: [node(false, 'Case', line, {pattern: null, body: statements})]});
         }
         var cases = [];
         while(c == '|') {
-            next();
-            skipLineEnd();
+            next(true);
             var primaryPattern = parseUpper() || parseNumber() || parseString() || parseLower();
             if(primaryPattern == null) {
                 c = current();
@@ -128,8 +126,8 @@ function parseFunk(code) {
         }
         c = current();
         if(!(c == '}')) throw 'Expected "}" after function at line ' + currentLine;
-        next(true);
         bracketStack.pop();
+        next(true);
         return node(false, 'Function', line, {cases: cases});
     }
 
@@ -143,8 +141,8 @@ function parseFunk(code) {
             if(term == null) term = node(false, 'Unit', line);
             c = current();
             if(!(c == ')')) throw 'Expected ")" after "(" at line ' + currentLine;
-            next(true);
             bracketStack.pop();
+            next(true);
             return term;
         } else {
             return parseLower() || parseUpper() || parseNumber() || parseString() || parseLambda();
@@ -181,8 +179,8 @@ function parseFunk(code) {
                 }
                 c = current();
                 if(c != ')') throw '")" expected after "(" at line ' + line;
-                next(true);
                 bracketStack.pop();
+                next(true);
             } else {
                 var argument = parseLambda();
                 if(argument == null) throw 'Lambda function argument expected at line ' + line;
