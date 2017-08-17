@@ -67,10 +67,10 @@ emitFunk.emitStatements = function(statements, functions) {
     }
 
     var last = statements[statements.length - 1];
-    if(!(last.tag == 'Initialize' || last.tag == 'Update')) {
+    if(!(last.tag == 'Initialize')) {
         return bodyCode + 'return ' + emitFunk(last, functions) + ';\n';
     } else {
-        return bodyCode + emitFunk(last, functions) + ';\nreturn;\n';
+        return bodyCode + emitFunk(last, functions) + ';\nreturn ' + last.name + '_;\n';
     }
 
 };
