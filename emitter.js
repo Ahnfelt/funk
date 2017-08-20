@@ -14,6 +14,12 @@ function emitFunk(term, functions) {
             if(term.value.tag == 'Function') functions[term.name + '_'] = true;
             return 'var ' + term.name + '_ = ' + emitFunk(term.value, functions);
 
+        case 'And':
+            return '(_B(' + emitFunk(term.left, functions) + ') && _B(' + emitFunk(term.right, functions) + '))';
+
+        case 'Or':
+            return '(_B(' + emitFunk(term.left, functions) + ') || _B(' + emitFunk(term.right, functions) + '))';
+
         case 'Apply': 
             // A slight optimization that removes some of the superfluous calls to _A.
             // This could be improved by putting function arity into the "functions" map.
