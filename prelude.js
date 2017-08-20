@@ -47,6 +47,11 @@ function _A(f, x) {
     }
 }
 
+// For using truth values with JavaScript logical operators
+function _B(x) {
+    return x === true || x === 'True';
+}
+
 // Global variables can be exposed to funk simply by giving them a "_" suffix:
 var system_ = function(x) {
     switch(x) {
