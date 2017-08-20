@@ -2,7 +2,7 @@ function emitFunk(term, functions) {
 
     switch(term.tag) {
 
-        case 'Placeholder': return '_';
+        case 'Placeholder': return '_P';
 
         case 'Lower': return term.value + '_';
 
@@ -41,7 +41,7 @@ function emitFunk(term, functions) {
                     casesCode += 'var ' + c.pattern.value + '_ = _X;\n';
                 }
                 if(c.pattern != null && c.pattern.tag == 'Placeholder') {
-                    casesCode += 'var _ = _X;\n';
+                    casesCode += 'var _P = _X;\n';
                 }
                 if(c.pattern != null && c.pattern.tag == 'String') {
                     var extra = 
