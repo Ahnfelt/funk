@@ -135,6 +135,37 @@ function parseFunk(code) {
         return node(false, 'Function', line, {cases: cases});
     }
 
+    function parseList() {
+        var c = current();
+        var start = offset;
+        var line = currentLine;
+        if(!(c == '[')) return null;
+        next(true);
+        bracketStack.push('[');
+        var elements = [];
+        var term = parseTerm();
+        c = current();
+        while(c == ',' && term != null) {
+            next(true);
+            elements.push(term);
+            term = parseTerm();
+            c = current();
+        }
+        if(term != null) elements.push(term);
+        var rest = null;
+        c = current();
+        if(c == '|') {
+            next(true);
+            rest = parseTerm();
+            if(rest == null) throw 'Expected term after "|" at line ' + currentLine;
+        }
+        c = current();
+        if(!(c == ']')) throw 'Expected "]" after "[" at line ' + currentLine;
+        bracketStack.pop();
+        next(true);
+        return node(false, 'List', line, {elements: elements, rest: rest});
+    }
+
     function parseAtom() {
         var c = current();
         var start = offset;
@@ -153,7 +184,7 @@ function parseFunk(code) {
             next(true);
             return node(false, 'Placeholder', line);
         } else {
-            return parseLower() || parseUpper() || parseNumber() || parseString() || parseLambda();
+            return parseLower() || parseUpper() || parseNumber() || parseString() || parseList() || parseLambda();
         }
     }
 
