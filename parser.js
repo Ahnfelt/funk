@@ -8,6 +8,10 @@ function parseFunk(code) {
         return code.charAt(offset) || '\n';
     }
 
+    function ahead() {
+        return code.charAt(offset + 1) || '\n';
+    }
+
     function next(skipSpace) {
         if(offset > code.length) throw 'Unexpected end of file at line ' + currentLine;
         offset += 1;
@@ -195,7 +199,7 @@ function parseFunk(code) {
         var c = current();
         var start = offset;
         var line = currentLine;
-        while('@!#$%&/=?^~*<>+-'.indexOf(c) != -1) {
+        while('@!#$%/=?^~*<>+-'.indexOf(c) != -1) {
             c = next();
         }
         var operator = code.substring(start, offset);
@@ -212,7 +216,7 @@ function parseFunk(code) {
         var c = current();
         var start = offset;
         var line = currentLine;
-        while('@!#$%&/=?^~*<>+-'.indexOf(c) != -1) {
+        while('@!#$%/=?^~*<>+-'.indexOf(c) != -1) {
             c = next();
         }
         var operator = code.substring(start, offset);
@@ -226,7 +230,24 @@ function parseFunk(code) {
         });
     }
 
-    var parseTerm = parseBinaryOperator;
+    function parseAndOr() {
+        var left = parseBinaryOperator();
+        if(left == null) return null;
+        var c = current();
+        var n = ahead();
+        var start = offset;
+        var line = currentLine;
+        var isAnd = c == '&' && n == '&';
+        var isOr = c == '|' && n == '|';
+        if(!(isAnd || isOr)) return left;
+        next();
+        next(true);
+        var right = parseAndOr();
+        if(right == null) throw 'Term expected after "' + (isAnd ? '&&' : '||') + '" at line ' + line;
+        else return node(false, isAnd ? 'And' : 'Or', line, {left: left, right: right});
+    }
+
+    var parseTerm = parseAndOr;
 
     function parseInitialization() {
         var c = current();
