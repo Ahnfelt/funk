@@ -12,6 +12,12 @@ function emitFunk(term, functions) {
 
         case 'Unit': return 'null';
 
+        case 'List':
+            var elementsCode = term.elements.map(function(e) { return emitFunk(e, functions); }).join(', ');
+            var listCode = '[' + elementsCode + ']';
+            var restCode = term.rest == null ? '' : '.concat(' + emitFunk(term.rest, functions) + ')';
+            return listCode + restCode;
+
         case 'Initialize': 
             if(term.value.tag == 'Function') functions[term.name + '_'] = true;
             return 'var ' + term.name + '_ = ' + emitFunk(term.value, functions);
