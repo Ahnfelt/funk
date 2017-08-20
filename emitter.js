@@ -2,6 +2,8 @@ function emitFunk(term, functions) {
 
     switch(term.tag) {
 
+        case 'Placeholder': return '_';
+
         case 'Lower': return term.value + '_';
 
         case 'String': return JSON.stringify(term.value);
@@ -38,6 +40,9 @@ function emitFunk(term, functions) {
                 if(c.pattern != null && c.pattern.tag == 'Lower') {
                     casesCode += 'var ' + c.pattern.value + '_ = _X;\n';
                 }
+                if(c.pattern != null && c.pattern.tag == 'Placeholder') {
+                    casesCode += 'var _ = _X;\n';
+                }
                 if(c.pattern != null && c.pattern.tag == 'String') {
                     var extra = 
                         c.pattern.value == 'Unit' ? ' || _X == null' :
@@ -50,7 +55,7 @@ function emitFunk(term, functions) {
                     casesCode += 'if(_X === ' + c.pattern.value + ') {\n';
                 }
                 casesCode += emitFunk.emitStatements(c.body, emitFunk.copy(functions)); 
-                if(c.pattern != null && c.pattern.tag != 'Lower') {
+                if(c.pattern != null && c.pattern.tag != 'Lower' && c.pattern.tag != 'Placeholder') {
                     casesCode += '}\n';
                 }
             }
