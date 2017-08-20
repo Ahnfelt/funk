@@ -97,7 +97,7 @@ function parseFunk(code) {
             if(!(c == '}')) throw 'Expected "}" after function at line ' + currentLine;
             bracketStack.pop();
             next(true);
-            return node(false, 'Function', line, {cases: [node(false, 'Case', line, {pattern: null, body: statements})]});
+            return node(false, 'Function', line, {cases: [node(false, 'Case', line, {pattern: node(false, 'Placeholder', line), body: statements})]});
         }
         var cases = [];
         while(c == '|') {
@@ -138,6 +138,7 @@ function parseFunk(code) {
     function parseAtom() {
         var c = current();
         var start = offset;
+        var line = currentLine;
         if(c == '(') {
             next(true);
             bracketStack.push('(');
@@ -148,10 +149,12 @@ function parseFunk(code) {
             bracketStack.pop();
             next(true);
             return term;
+        } else if(c == '_') {
+            next(true);
+            return node(false, 'Placeholder', line);
         } else {
             return parseLower() || parseUpper() || parseNumber() || parseString() || parseLambda();
         }
-        
     }
 
     function parseApply() {
