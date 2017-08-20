@@ -36,6 +36,19 @@ function _A(f, x) {
             case '/': return function(v) { return f / v; };
             default: throw "Unexpected argument: " + x;
         }
+    } else if(Array.isArray(f)) {
+        switch(x) {
+            case 'Show': return "[" + f.join(", ") + "]";
+            case 'At': return function(v) { return f[v]; };
+            case 'Get': return function(v) { return v < 0 || v >= f.length ? function(g) { return _A(g, 'None'); } : function(g) { return _A(_A(g, 'Some'), f[v]); }};
+            case 'Size': return f.length;
+            case 'Head': return f.length == 0 ? function(g) { return _A(g, 'None'); } : function(g) { return _A(_A(g, 'Some'), f[0]); };
+            case 'Tail': return f.length == 0 ? function(g) { return _A(g, 'None'); } : function(g) { return _A(_A(g, 'Some'), f.slice(1)); };
+            case 'Map': return function(g) { return f.map(function(y) { return _A(g, y); }); };
+            case 'Filter': return function(g) { return f.filter(function(y) { return _B(_A(g, y)); }); };
+            case '+': return function(v) { return f.concat(v); };
+            default: throw "Unexpected argument: " + x;
+        }
     } else if(f === true) {
         return _A('True', x);
     } else if(f === false) {
