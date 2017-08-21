@@ -284,16 +284,19 @@ function parseFunk(code) {
     var parseTerm = parseAndOr;
 
     function parseInitialization() {
+        var left = parseTerm();
         var c = current();
         var start = offset;
         var line = currentLine;
-        if(!(c == ':')) return parseTerm();
+        if(!(c == ':')) return left;
+        next();
+        c = current();
+        if(!(c == '=')) throw '"=" expected after ":" at line ' + currentLine;
         next(true);
-        var name = parseLower();
-        if(name == null) throw 'Lower case identifier expected after "' + c + '" at line ' + line;
-        var term = parseBinaryOperator();
-        if(term == null) throw 'Value expected after ":' + name.value + '" at line ' + line;
-        return node(false, 'Initialize', line, {name: name.value, value: term});
+        if(left.tag != 'Lower') throw 'Lower case identifier expected before ":=" at line ' + line;
+        var term = parseTerm();
+        if(term == null) throw 'Value expected after ":' + left.value + '" at line ' + line;
+        return node(false, 'Initialize', line, {name: left.value, value: term});
     }
 
     function parseStatements() {
