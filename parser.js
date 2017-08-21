@@ -193,7 +193,8 @@ function parseFunk(code) {
         if(term == null) return null;
         var c = current();
         var start = offset;
-        while(c == '.' || c == '(' || c == '{') {
+        var argument = null;
+        while(c == '.' || c == '(' || (argument = parseAtom()) != null) {
             var line = currentLine;
             if(c == '.') {
                 next(true);
@@ -220,8 +221,7 @@ function parseFunk(code) {
                 bracketStack.pop();
                 next(true);
             } else {
-                var argument = parseLambda();
-                if(argument == null) throw 'Lambda function argument expected at line ' + line;
+                if(argument == null) throw 'Argument expected at line ' + line;
                 term = node(false, 'Apply', line, {left: term, right: argument});
             }
             c = current();
@@ -292,6 +292,7 @@ function parseFunk(code) {
         var name = parseLower();
         if(name == null) throw 'Lower case identifier expected after "' + c + '" at line ' + line;
         var term = parseBinaryOperator();
+        if(term == null) throw 'Value expected after ":' + name.value + '" at line ' + line;
         return node(false, 'Initialize', line, {name: name.value, value: term});
     }
 
