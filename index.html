@@ -49,16 +49,16 @@
         </div>
         <div id="editor">
 <textarea id="editor-textarea" placeholder="Write some Funk code here, then press Run.">
-:point {|x y| {
+point := {|x y| {
     |X| x 
     |Y| y 
     |Add p| point(x + p.X, y + p.Y) 
     |Show| "(" + x + ", " + y + ")" 
 }}
 
-:p1 point(5, 7)
-:p2 point(1, 2)
-:p3 p1.Add(p2)
+p1 := point(5, 7)
+p2 := point(1, 2)
+p3 := p1.Add(p2)
 
 system.SetText(p1.Show + " + " + p2.Show + " = " + p3.Show)
 
@@ -69,25 +69,25 @@ system.SetText(p1.Show + " + " + p2.Show + " = " + p3.Show)
 
 
 ; Define your own control structures, eg: if(x > y) {"foo"} {"bar"}
-:if {
+if := {
     |True t _| t()
     |False _ e| e() 
 }
 
-:when {
+when := {
     |True t| t()
     |False _|
 }
 
 ; Loops via recursion: while {x > y} {"blah"}
-:while {|c b|
+while := {|c b|
     when(c()) {
         b()
         while(c, b)
     }
 }
 
-:x new(10)
+x := new(10)
 while {*x > 0} {
     system.Log(*x)
     x -= 1
