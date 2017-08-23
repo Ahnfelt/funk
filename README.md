@@ -9,4 +9,4 @@ A minimal scripting language - OOP via lambda functions and pattern matching
 
 # Documentation
 
-[Open Slideshow](https://docs.google.com/presentation/d/1e7jfo6h27GfQqP18uxuQV7e8aepiPo5w6rwiK73MrMM/edit?usp=sharing)
+[View Slideshow](https://docs.google.com/presentation/d/1e7jfo6h27GfQqP18uxuQV7e8aepiPo5w6rwiK73MrMM/edit?usp=sharing)
